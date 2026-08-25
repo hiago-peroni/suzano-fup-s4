@@ -43,10 +43,29 @@ Nao atua sobre:
 
 ## Workflow
 
-### Passo 1 — Ler o card do Jira
+### Passo 1 — Detectar o projeto alvo
 
+O projeto alvo nem sempre e o workspace atual. Detectar nesta ordem:
+
+1. **Do card description:** o campo "Onde" costuma ter o path do repo
+   (ex: `/home/hiagoperoni/Projects/Suzano/S4/suzano-fup-s4`)
+2. **Do usuario:** se nao der para detectar, perguntar "em qual projeto?"
+3. **Do workspace atual:** se for um projeto S4 direto
+
+```bash
+# Exemplo: card RFIA-17 menciona /home/hiagoperoni/Projects/Suzano/S4/suzano-fup-s4
+# project_root = /home/hiagoperoni/Projects/Suzano/S4/suzano-fup-s4
 ```
-atlassian_jira_get_issue(issue_key="{RFIA-XX}", fields="*all")
+
+### Passo 2 — Ler o card do Jira
+
+Usar curl para ler o card completo (ver `jira-refactor-flow/references/jira-api.md`
+para os comandos):
+
+```bash
+curl -s -u "$JIRA_USER:$JIRA_TOKEN" \
+  "$JIRA_URL/rest/api/2/issue/{RFIA-XX}?fields=summary,status,description,priority,issuetype,labels,subtasks,issuelinks" \
+  | python3 -c "import sys,json; d=json.load(sys.stdin); ..."
 ```
 
 Extrair do card:
@@ -59,7 +78,7 @@ Extrair do card:
 | Priority | `priority.name` | Prioridade |
 | Status | `status.name` | Status atual (deve estar "Em analise") |
 
-### Passo 2 — Ler o research vinculado
+### Passo 3 — Ler o research vinculado
 
 O campo "Detalhes" do card referencia `docs/researches/<slug>/research.md`.
 
@@ -72,7 +91,7 @@ Se NAO existir:
 - Sinalizar GAP no plano
 - Continuar com o que esta no card (o "Done when" e a fonte minima)
 
-### Passo 3 — Ler o AGENTS.md do projeto
+### Passo 4 — Ler o AGENTS.md do projeto (se existir)
 
 ```
 Read("{project-root}/AGENTS.md")
@@ -81,7 +100,12 @@ Read("{project-root}/AGENTS.md")
 Se houver AGENTS.md em subpasta mais proxima do codigo alvo, ler tambem
 (proximity-based: o mais proximo prevalece).
 
-### Passo 4 — Classificar a acao
+Se NAO existir AGENTS.md no projeto:
+- Nao e erro — o projeto pode nao ter um ainda (ex: task de scaffold)
+- Usar os padroes globais do vault Obsidian (`docs/obsidian/Obsidian/IAtizacao/`)
+- Marcar como GAP no plano: "AGENTS.md nao existe — usando padroes globais"
+
+### Passo 5 — Classificar a acao
 
 Baseado no "O que" e "Onde" do card, classificar o tipo:
 
@@ -93,7 +117,7 @@ Baseado no "O que" e "Onde" do card, classificar o tipo:
 | `config` | Padronizar tsconfig, eslint, CI | Direto (sem skill atomica) |
 | `mixed` | Mais de um tipo acima | Orquestrar em ordem |
 
-### Passo 5 — Escrever o plano
+### Passo 6 — Escrever o plano
 
 Criar `{project-root}/.refactor-plan.md` com a estrutura:
 
@@ -132,7 +156,7 @@ Se review-implementation encontrar critico:
   -> se falhar 2x: escalar para o usuario com diagnostico
 ```
 
-### Passo 6 — Validar o plano
+### Passo 7 — Validar o plano
 
 Antes de liberar para execucao, bater cada item do "Done when" do card contra
 o plano:
@@ -146,12 +170,27 @@ Se algum criterio NAO estiver coberto:
 - Adicionar ao plano
 - Se nao for possivel cobrir, marcar como GAP e escalar para o usuario
 
-### Passo 7 — Retornar para o orquestrador
+### Passo 8 — Apresentar para aprovacao do usuario
 
-O plano esta pronto. Retornar:
-- Status: `ready` | `gap` (com lista de gaps)
+O plano esta pronto no disco. **Apresentar o resumo para o usuario aprovar**
+antes de liberar para execucao. Use a ferramenta `question` com:
+
+- "Aprovar e executar" — plano validado, prosseguir para `refactor-orchestrator`
+- "Revisar plano" — voltar e ajustar
+- "Cancelar" — descartar o plano
+
+> **CRITICO:** o padrao e Planejar-Validar-Executar. A "Validar" inclui:
+> 1. Validar contra o "Done when" do card (Passo 7)
+> 2. Validar com o usuario (este passo)
+> NUNCA passar para o orchestrator sem aprovacao explicita.
+
+Se aprovado, retornar:
+- Status: `approved`
 - Caminho: `{project-root}/.refactor-plan.md`
 - Proximo passo: `refactor-orchestrator` para execucao
+
+Se revisao solicitada, voltar ao Passo 5 com os ajustes pedidos.
+Se cancelado, deletar `.refactor-plan.md` e parar.
 
 ## Gotchas
 

@@ -96,18 +96,23 @@ Extrair do plano:
 
 ### Passo 2 — Delegar para a skill atomica
 
-| Tipo no plano | Skill chamada | Como |
-|---------------|---------------|------|
-| `move-file` | `refactor-move-file` | Skill tool |
-| `rewrite-logic` | `refactor-rewrite-logic` | Skill tool |
-| `dependency-inversion` | `refactor-dependency-inversion` | Skill tool |
+| Tipo no plano | Skill a carregar | Como |
+|---------------|------------------|------|
+| `move-file` | `refactor-move-file` | Usar ferramenta `skill` com `name="refactor-move-file"` |
+| `rewrite-logic` | `refactor-rewrite-logic` | Usar ferramenta `skill` com `name="refactor-rewrite-logic"` |
+| `dependency-inversion` | `refactor-dependency-inversion` | Usar ferramenta `skill` com `name="refactor-dependency-inversion"` |
 | `config` | Executar direto | Bash (tsconfig/eslint) |
-| `mixed` | Chamadar em ordem: move → rewrite → DI | Sequencial |
+| `mixed` | Carregar em ordem: move → rewrite → DI | Sequencial, uma skill por vez |
 
 Para `mixed`, executar nesta ORDEM:
-1. `refactor-move-file` primeiro (mover arquivos para a camada certa)
-2. `refactor-rewrite-logic` segundo (corrigir logica na nova camada)
-3. `refactor-dependency-inversion` terceiro (criar interfaces/factories)
+1. Carregar `refactor-move-file` e seguir suas instrucoes (mover arquivos)
+2. Carregar `refactor-rewrite-logic` e seguir suas instrucoes (corrigir logica)
+3. Carregar `refactor-dependency-inversion` e seguir suas instrucoes (criar interfaces)
+
+> **Skill chaining:** use a ferramenta `skill` para CARREGAR as instrucoes da
+> skill atomica no contexto, entao SIGA o workflow dela. A ferramenta `skill`
+> injeta o SKILL.md no contexto — nao e uma chamada de funcao que retorna
+> automaticamente.
 
 > **Sub-agentes:** para tasks com [P] (paralelas) no plano, delegar cada
 > sub-task a um sub-agente via `Task` tool. O orchestrator principal consolida.
@@ -128,25 +133,17 @@ Se falhar:
 
 ### Passo 4 — Documentar (refactor-document)
 
-```
-skill("refactor-document")  # registra em DECISIONS.md + Obsidian + MemPalace
-```
-
-O `refactor-document` registra:
+Carregar a skill `refactor-document` usando a ferramenta `skill` com
+`name="refactor-document"` e seguir seu workflow. O `refactor-document` registra:
 - Decision log com cada arquivo modificado
 - Nota no vault Obsidian com wikilinks
 - Drawer no MemPalace
 
 ### Passo 5 — Review (review-implementation)
 
-```
-skill("review-implementation")  # 6 subagentes: security, requirements, tests, architecture, regression, performance
-```
-
-O `review-implementation` valida contra:
-- spec.md e tasks.md (se existirem)
-- Clean Architecture rules
-- Padroes de codigo do projeto
+Carregar a skill `review-implementation` usando a ferramenta `skill` com
+`name="review-implementation"` e seguir seu workflow. O `review-implementation`
+valida contra spec.md, tasks.md e padroes de codigo do projeto.
 
 ### Passo 6 — Avaliar resultado do review
 

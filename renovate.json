@@ -1,0 +1,48 @@
+{
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": [
+        "config:recommended"
+    ],
+    "enabledManagers": [
+        "npm"
+    ],
+    "baseBranches": [
+        "quality"
+    ],
+    "branchPrefix": "feature/",
+    "packageRules": [
+        {
+            "matchUpdateTypes": [
+                "major",
+                "minor"
+            ],
+            "enabled": false
+        },
+        {
+            "matchDepTypes": [
+                "dependencies",
+                "devDependencies",
+                "optionalDependencies",
+                "peerDependencies"
+            ],
+            "assignees": [
+                "hiagoperoni"
+            ],
+            "reviewers": [
+                "hiagoperoni"
+            ],
+            "labels": [
+                "dependencies"
+            ],
+            "groupName": "All Dependencies"
+        }
+    ],
+    "schedule": [
+        "after 6am and before 9pm on Monday to Friday"
+    ],
+    "prHourlyLimit": 2,
+    "prConcurrentLimit": 5,
+    "ignorePaths": [
+        "docs/**"
+    ]
+}

@@ -1,0 +1,16 @@
+# Root
+node_modules/
+resources/
+mta_archives/
+mta-op*
+dist/
+gen/
+@cds-models/
+*.log
+.DS_Store
+.review-results/
+.refactor-plan.md
+
+# Packages
+packages/*/node_modules/
+packages/*/.env

@@ -1,0 +1,20 @@
+{
+    "name": "suzano-fup-s4",
+    "version": "2.0.0",
+    "description": "Monorepo do FUP (Follow-Up de Pedidos) — sistema SAP que gerencia o acompanhamento de pedidos de compra com fornecedores",
+    "private": true,
+    "scripts": {
+        "bd": "npm run build && npm run deploy",
+        "build": "rimraf resources mta_archives && mbt build --mtar suzano-fup-s4",
+        "clean": "rimraf resources mta_archives mta-op*",
+        "deploy": "cf deploy mta_archives/suzano-fup-s4.mtar --retries 0 -f",
+        "undeploy": "cf undeploy suzano-fup-s4 --delete-services --delete-service-keys --delete-service-brokers"
+    },
+    "devDependencies": {
+        "mbt": "^1.2.31",
+        "rimraf": "^5.0.10"
+    },
+    "engines": {
+        "node": "^22"
+    }
+}

@@ -49,7 +49,7 @@ suzano-fup-s4/
 - **Package manager:** SEMPRE use `yarn` — NUNCA use `npm` ou `bun`.
 - **Node:** versão 22 (`.nvmrc` na raiz).
 - **Git flow:** `feature/*` ou `bugfix/*` → PR para `quality` → merge automático para `main` via `NUMENDS/git-flow-action`.
-- **Commits:** conventional — `type(scope): summary` (máx 80 chars). NUNCA commitar sem pedido explícito do usuário. NUNCA commitar secrets.
+- **Commits:** git flow — `<ação>: <descrição em até 80 caracteres>`. Ações: `feat`, `fix`, `docs`, `chore`, `refactor`, `test`, `ci`, `build`, `perf`. NUNCA commitar sem pedido explícito do usuário. NUNCA commitar secrets.
 - **Renovate:** `baseBranches: [quality]`, patch-only (major/minor desabilitados).
 - **Idioma:** código em inglês; docs e conteúdo gerado em PT-BR; termos técnicos consagrados em inglês.
 - **NÃO mate portas** após testes — o usuário roda múltiplos dev servers simultaneamente.
